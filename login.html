@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shared Hearth</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Fredoka:wght@300..700&family=Quicksand:wght@300;400;500;600;700&family=DM+Serif+Display&family=Nunito:wght@200..1000&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --primary: #ffb805;
+    --primary-orange: #fb8500;
+    --bg-light: #fff3e0;
+    --bg-dark: #231d0f;
+    --lavender: #9F86C0;
+    --coral: #FF6B6B;
+    --cream: #f8f1e5;
+    --brown: #b08968;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Quicksand', sans-serif; background: var(--bg-light); color: #1a1a1a; min-height: 100vh; overflow-x: hidden; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; vertical-align: middle; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ========== LOGIN PAGE ========== */
+  #login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 50%, #ffccbc 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  #login-page::before {
+    content: '';
+    position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 40%, rgba(255,184,5,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(251,133,0,0.10) 0%, transparent 50%);
+    animation: rotateGlow 20s linear infinite;
+  }
+  @keyframes rotateGlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .login-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 2rem;
+    padding: 3rem 2.5rem;
+    width: min(480px, 94vw);
+    position: relative; z-index: 1;
+    box-shadow: 0 30px 80px rgba(251,133,0,0.15);
+    animation: slideUp 0.6s ease;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .login-logo { text-align: center; margin-bottom: 2rem; }
+  .login-logo .icon { font-size: 3.5rem; color: var(--primary); display: block; margin-bottom: 0.5rem; }
+  .login-logo h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 700; color: #231d0f; }
+  .login-logo p { color: #888; font-size: 0.9rem; margin-top: 0.3rem; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: #555; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .form-group input {
+    width: 100%; padding: 0.85rem 1.2rem;
+    border: 2px solid rgba(255,184,5,0.2);
+    border-radius: 1rem; font-family: 'Quicksand', sans-serif;
+    font-size: 1rem; background: rgba(255,255,255,0.8);
+    transition: all 0.2s; outline: none;
+  }
+  .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255,184,5,0.1); }
+  .login-btn {
+    width: 100%; padding: 1rem; border: none; border-radius: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-orange));
+    color: white; font-family: 'Fredoka', sans-serif; font-size: 1.15rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 25px rgba(255,184,5,0.3);
+    margin-top: 0.5rem;
+  }
+  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(255,184,5,0.4); }
+  .login-btn:active { transform: scale(0.98); }
+  .login-hint { font-size: 0.8rem; color: #999; text-align: center; margin-top: 1rem; }
+  .login-error { background: #fff0f0; border: 1px solid #ffcccc; border-radius: 0.75rem; padding: 0.75rem 1rem; color: #c00; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+  .partners-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; background: rgba(255,184,5,0.08); border-radius: 1rem; padding: 1rem; }
+  .partners-row .partner-icon { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-orange)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; }
+  .partners-row .arrow { color: var(--primary); font-size: 1.5rem; }
+  .partners-row p { font-size: 0.82rem; color: #777; }
+  .partners-row strong { color: #333; }
+
+  /* ========== MAIN APP LAYOUT ========== */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+  #app.active { display: flex; }
+  .app-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,243,224,0.85); backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,184,5,0.15);
+    padding: 0.75rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem;
+  }
+  .header-brand { display: flex; align-items: center; gap: 0.6rem; }
+  .header-brand .icon { color: var(--primary); font-size: 1.8rem; }
+  .header-brand h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; }
+  .header-nav { display: flex; gap: 0.25rem; }
+  .nav-btn {
+    padding: 0.5rem 1rem; border-radius: 2rem; border: none;
+    background: transparent; cursor: pointer; font-family: 'Quicksand', sans-serif;
+    font-weight: 600; font-size: 0.85rem; color: #777; transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .nav-btn:hover { background: rgba(255,184,5,0.12); color: #333; }
+  .nav-btn.active { background: var(--primary); color: white; }
+  .header-right { display: flex; align-items: center; gap: 0.75rem; }
+  .user-chip {
+    background: rgba(255,184,5,0.15); border-radius: 2rem;
+    padding: 0.3rem 0.75rem; font-size: 0.8rem; font-weight: 700; color: #8b5e00;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .main-content { flex: 1; }
+
+  /* ========== HOME PAGE ========== */
+  #home-page { min-height: calc(100vh - 65px); background: linear-gradient(160deg, #fff3e0 0%, #fff8f0 100%); }
+  .home-hero { text-align: center; padding: 4rem 1.5rem 2rem; }
+  .home-hero h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem,5vw,3.5rem); font-weight: 700; margin-bottom: 0.75rem; }
+  .home-hero p { color: #777; font-size: 1.05rem; max-width: 480px; margin: 0 auto; line-height: 1.7; }
+  .home-hub { display: flex; align-items: center; justify-content: center; gap: 3rem; padding: 3rem 2rem; flex-wrap: wrap; }
+  .hub-cards { display: flex; flex-direction: column; gap: 1.25rem; }
+  .hub-card {
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.5); border-radius: 1.25rem;
+    padding: 1.25rem 1.5rem; width: 220px; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .hub-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,184,5,0.15); }
+  .hub-card .card-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem; }
+  .hub-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .hub-card p { font-size: 0.8rem; color: #888; }
+  .central-lamp {
+    width: clamp(200px, 30vw, 280px); height: clamp(200px, 30vw, 280px);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-orange));
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative;
+    box-shadow: 0 0 60px rgba(255,184,5,0.4);
+    transition: transform 0.2s;
+    animation: lampPulse 3s infinite;
+  }
+  @keyframes lampPulse {
+    0%,100% { box-shadow: 0 0 40px rgba(255,184,5,0.4); }
+    50% { box-shadow: 0 0 80px rgba(255,184,5,0.6); }
+  }
+  .central-lamp:active { transform: scale(0.97); }
+  .lamp-inner { width: 80%; height: 80%; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; border: 2px dashed rgba(255,255,255,0.3); animation: spin 20s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .lamp-inner .lamp-icon { font-size: 3.5rem; animation: spin 20s linear infinite reverse; }
+  .lamp-inner span { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; animation: spin 20s linear infinite reverse; }
+  .lamp-label {
+    position: absolute; bottom: -3rem; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; background: white; border: 1px solid rgba(255,184,5,0.2);
+    border-radius: 2rem; padding: 0.4rem 1rem; font-size: 0.75rem; font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+  }
+  .mood-widget {
+    margin: 0 auto 4rem; max-width: 700px; padding: 0 1.5rem;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.4); border-radius: 1.5rem;
+    padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  }
+  .mood-label h4 { font-weight: 700; font-size: 1rem; }
+  .mood-label span { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.1em; }
+  .mood-bar-wrap { flex: 1; min-width: 200px; height: 3rem; background: rgba(0,0,0,0.06); border-radius: 2rem; overflow: hidden; position: relative; display: flex; align-items: center; padding: 0 1rem; }
+  .mood-bar { position: absolute; left: 0; top: 0; height: 100%; width: 65%; background: linear-gradient(90deg, var(--primary), var(--primary-orange)); opacity: 0.35; border-radius: 2rem; }
+  .mood-ticks { display: flex; justify-content: space-between; width: 100%; position: relative; z-index: 1; font-size: 0.65rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+  .mood-avatars { display: flex; }
+  .mood-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; }
+  .mood-avatar:last-child { margin-left: -12px; }
+  .nudge-toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 200;
+    background: white; border: 1px solid rgba(255,184,5,0.2);
+    border-radius: 1.25rem; padding: 1rem 1.25rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    display: flex; align-items: center; gap: 0.75rem;
+    animation: toastIn 0.4s ease; cursor: pointer; max-width: 280px;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .toast-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,184,5,0.15); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
+  .toast-text p { font-weight: 700; font-size: 0.85rem; }
+  .toast-text small { color: #aaa; font-size: 0.75rem; }
+
+  /* ========== MEMORY LANE ========== */
+  #memories-page { background: #f8f1e5; min-height: calc(100vh - 65px); padding-bottom: 4rem; }
+  .memories-hero { padding: 3rem 2rem 2rem; max-width: 900px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
+  .memories-hero h2 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-style: italic; color: var(--brown); }
+  .memories-hero p { color: #666; line-height: 1.7; }
+  .memory-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .btn-primary { background: var(--primary); color: #231d0f; border: none; padding: 0.75rem 1.5rem; border-radius: 2rem; font-family: 'Quicksand'; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,184,5,0.3); }
+  .btn-secondary { background: rgba(255,184,5,0.15); color: var(--brown); border: none; padding: 0.75rem 1.5rem; border-radius: 2rem; font-family: 'Quicksand'; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; }
+  .btn-secondary:hover { background: rgba(255,184,5,0.25); }
+  .memories-grid { max-width: 1000px; margin: 0 auto; padding: 0 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2rem; }
+  .memory-card {
+    background: white; padding: 1rem 1rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transform: rotate(var(--rot, -2deg)); cursor: pointer;
+    transition: all 0.3s;
+  }
+  .memory-card:hover { transform: rotate(0deg) scale(1.02); z-index: 10; box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
+  .memory-card img, .memory-card .memory-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: linear-gradient(135deg, #fff3e0, #ffe0b2); display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 3rem; margin-bottom: 0.75rem; }
+  .memory-card .mem-caption { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; color: #333; }
+  .memory-card .mem-date { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.3rem; display: flex; align-items: center; gap: 0.3rem; }
+  .memory-card .mem-likes { margin-top: 0.75rem; display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; font-weight: 700; color: var(--primary-orange); cursor: pointer; border: none; background: none; }
+  .sticky-memory { background: #ffeb3b; padding: 1.5rem; clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 90% 100%, 0% 100%); transform: rotate(var(--rot, 2deg)); cursor: pointer; transition: all 0.2s; }
+  .sticky-memory:hover { transform: rotate(0deg) scale(1.02); z-index: 10; }
+  .sticky-memory .stick-text { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; line-height: 1.6; color: #333; }
+  .sticky-memory .stick-author { margin-top: 1rem; font-weight: 700; font-size: 0.85rem; }
+  .date-divider { grid-column: 1/-1; display: flex; align-items: center; gap: 1.5rem; padding: 1rem 0; }
+  .date-divider::before, .date-divider::after { content:''; flex:1; height:1px; background: #ddb; }
+  .date-divider span { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--brown); padding: 0.4rem 1.2rem; border: 1px solid #ddb; border-radius: 2rem; white-space: nowrap; }
+  .search-bar { display: flex; align-items: center; background: white; border: 2px solid rgba(255,184,5,0.2); border-radius: 2rem; padding: 0.5rem 1rem; gap: 0.5rem; }
+  .search-bar input { border: none; outline: none; font-family: 'Quicksand'; font-size: 0.9rem; flex:1; }
+
+  /* Add Memory Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .modal { background: white; border-radius: 2rem; padding: 2rem; width: min(520px, 95vw); max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+  .modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .modal textarea, .modal input[type=text], .modal input[type=date], .modal select {
+    width: 100%; padding: 0.75rem 1rem; border: 2px solid #eee; border-radius: 1rem;
+    font-family: 'Quicksand'; font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+    resize: vertical; background: #fafafa; margin-bottom: 1rem;
+  }
+  .modal textarea:focus, .modal input:focus, .modal select:focus { border-color: var(--primary); }
+  .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem; }
+  .btn-cancel { background: #f5f5f5; border: none; padding: 0.75rem 1.5rem; border-radius: 1rem; font-family: 'Quicksand'; font-weight: 600; cursor: pointer; }
+  .btn-cancel:hover { background: #eee; }
+
+  /* ========== VENT SPACE ========== */
+  #vent-page { background: #1E1E2F; min-height: calc(100vh - 65px); color: #e8e8f0; padding-bottom: 4rem; }
+  #vent-page .page-hero { text-align: center; padding: 4rem 2rem 3rem; }
+  #vent-page .page-hero h2 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem,5vw,3.5rem); color: #e8e8f0; margin-bottom: 1rem; }
+  #vent-page .page-hero p { color: rgba(159,134,192,0.7); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+  .vent-input-card {
+    max-width: 700px; margin: 0 auto 3rem; padding: 0 1.5rem;
+  }
+  .vent-input-inner {
+    background: rgba(159,134,192,0.1); backdrop-filter: blur(12px);
+    border: 1px solid rgba(159,134,192,0.2); border-radius: 1.5rem; padding: 2rem;
+  }
+  .vent-input-inner textarea {
+    width: 100%; background: transparent; border: none; outline: none;
+    color: #e8e8f0; font-family: 'Quicksand'; font-size: 1.1rem; resize: none;
+    min-height: 140px; placeholder-color: rgba(159,134,192,0.3);
+  }
+  .vent-input-inner textarea::placeholder { color: rgba(159,134,192,0.4); }
+  .vent-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; gap: 0.75rem; }
+  .vent-mood-btns { display: flex; gap: 0.5rem; }
+  .vent-mood-btn { background: none; border: none; padding: 0.5rem; border-radius: 50%; cursor: pointer; color: rgba(159,134,192,0.6); transition: all 0.2s; }
+  .vent-mood-btn:hover { background: rgba(255,255,255,0.05); color: var(--primary); }
+  .vent-submit { background: var(--primary); color: #1E1E2F; border: none; padding: 0.75rem 2rem; border-radius: 2rem; font-family: 'Quicksand'; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .vent-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,184,5,0.3); }
+  .vents-section { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+  .vents-section h3 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--lavender); margin-bottom: 1.5rem; }
+  .vents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
+  .vent-card {
+    background: rgba(159,134,192,0.1); border: 1px solid rgba(159,134,192,0.15);
+    border-radius: 1.25rem; padding: 1.5rem; position: relative;
+    transition: transform 0.2s;
+  }
+  .vent-card:hover { transform: translateY(-4px); }
+  .vent-card .vc-author { font-size: 0.75rem; font-weight: 700; color: var(--lavender); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.3rem; }
+  .vent-card .vc-text { font-family: 'DM Serif Display', serif; font-size: 1rem; line-height: 1.6; color: #d0d0e0; }
+  .vent-card .vc-meta { margin-top: 1rem; font-size: 0.75rem; color: rgba(159,134,192,0.5); display: flex; justify-content: space-between; align-items: center; }
+  .vc-respond-btn { background: none; border: 1px solid rgba(159,134,192,0.3); border-radius: 2rem; padding: 0.3rem 0.75rem; color: var(--lavender); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+  .vc-respond-btn:hover { background: rgba(159,134,192,0.15); }
+  .partner-presence { max-width: 700px; margin: 3rem auto 0; padding: 0 1.5rem; }
+  .presence-card { background: rgba(159,134,192,0.08); border: 1px dashed rgba(159,134,192,0.2); border-radius: 1.5rem; padding: 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .presence-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-orange)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; position: relative; flex-shrink: 0; }
+  .presence-dot { position: absolute; bottom: 4px; right: 4px; width: 14px; height: 14px; background: #22c55e; border-radius: 50%; border: 3px solid #1E1E2F; }
+  .presence-info { flex: 1; }
+  .presence-info h4 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; }
+  .presence-info p { color: rgba(159,134,192,0.6); font-style: italic; margin-top: 0.3rem; font-size: 0.9rem; }
+  .presence-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .btn-lavender { background: rgba(159,134,192,0.1); border: 1px solid rgba(159,134,192,0.2); color: var(--lavender); border-radius: 2rem; padding: 0.6rem 1.2rem; font-family: 'Quicksand'; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
+  .btn-lavender:hover { background: rgba(159,134,192,0.2); }
+
+  /* ========== DATE NIGHT ========== */
+  #dates-page { background: #FFF9EC; min-height: calc(100vh - 65px); padding-bottom: 4rem; }
+  #dates-page .page-hero { text-align: center; padding: 4rem 2rem 2rem; }
+  #dates-page .page-hero h2 { font-family: 'Fredoka', sans-serif; font-size: clamp(2.2rem,5vw,3.5rem); color: #231d0f; margin-bottom: 0.75rem; }
+  #dates-page .page-hero p { color: #888; max-width: 500px; margin: 0 auto; line-height: 1.7; font-size: 1.05rem; }
+  .date-categories { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; padding: 1.5rem 2rem 0; }
+  .cat-btn { padding: 0.5rem 1.25rem; border-radius: 2rem; border: 2px solid rgba(255,184,5,0.2); background: white; font-family: 'Nunito'; font-weight: 700; font-size: 0.85rem; color: #555; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; }
+  .cat-btn:hover, .cat-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+  .date-generator { display: flex; justify-content: center; padding: 3rem 2rem 2rem; }
+  .gen-btn-wrap { position: relative; }
+  .gen-glow { position: absolute; inset: -4px; background: linear-gradient(135deg, var(--primary), var(--coral)); border-radius: 50%; blur: 10px; opacity: 0.4; filter: blur(10px); transition: opacity 0.3s; }
+  .gen-btn-wrap:hover .gen-glow { opacity: 0.9; }
+  .gen-btn {
+    position: relative; width: clamp(200px,30vw,260px); height: clamp(200px,30vw,260px);
+    border-radius: 50%; border: none;
+    background: var(--primary);
+    cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 20px 60px rgba(255,184,5,0.3);
+  }
+  .gen-btn:hover { transform: scale(1.04); }
+  .gen-btn:active { transform: scale(0.97); }
+  .gen-btn .gen-icon { font-size: 3.5rem; color: white; margin-bottom: 0.5rem; transition: transform 0.3s; }
+  .gen-btn:hover .gen-icon { transform: rotate(15deg); }
+  .gen-btn span.gen-label { font-family: 'Fredoka'; font-size: 1.4rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.1em; }
+  .date-result { max-width: 700px; margin: 0 auto 3rem; padding: 0 1.5rem; }
+  .date-result-card {
+    background: white; border-radius: 1.5rem; padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 3px solid white;
+    display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap;
+  }
+  .date-tag { display: inline-block; background: rgba(255,107,107,0.1); color: var(--coral); padding: 0.3rem 0.75rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+  .date-result-card h3 { font-family: 'Fredoka'; font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .date-result-card p { color: #666; line-height: 1.7; margin-bottom: 1.25rem; }
+  .date-action-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .btn-lock { background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 2rem; font-family: 'Nunito'; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 6px 20px rgba(255,184,5,0.3); }
+  .btn-lock:hover { transform: translateY(-2px); }
+  .btn-spin { background: white; border: 2px solid #eee; color: #777; padding: 0.75rem 1.5rem; border-radius: 2rem; font-family: 'Nunito'; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; }
+  .btn-spin:hover { border-color: var(--primary); color: var(--primary); }
+  .planned-dates { max-width: 700px; margin: 0 auto; padding: 0 1.5rem; }
+  .planned-dates h3 { font-family: 'Fredoka'; font-size: 1.8rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+  .planned-date-item { background: white; border-radius: 1.25rem; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.2s; }
+  .planned-date-item:hover { transform: translateX(4px); }
+  .pdi-icon { width: 48px; height: 48px; border-radius: 1rem; background: rgba(255,184,5,0.1); display: flex; align-items: center; justify-content: center; color: var(--primary-orange); flex-shrink: 0; }
+  .pdi-info { flex: 1; }
+  .pdi-info h4 { font-weight: 700; font-size: 0.95rem; }
+  .pdi-info p { font-size: 0.8rem; color: #aaa; }
+  .pdi-badge { background: #e8f5e9; color: #388e3c; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 2rem; }
+  .pdi-delete { background: none; border: none; color: #ccc; cursor: pointer; padding: 0.25rem; border-radius: 50%; transition: all 0.2s; }
+  .pdi-delete:hover { color: #c00; background: #fff0f0; }
+
+  /* ========== Responsive ========== */
+  @media (max-width: 640px) {
+    .header-nav .nav-btn span:not(.material-symbols-outlined) { display: none; }
+    .hub-cards { flex-direction: row; }
+    .hub-card { width: auto; flex: 1; min-width: 140px; }
+    .home-hub { gap: 1.5rem; flex-direction: column; align-items: center; }
+    .hub-cards { width: 100%; justify-content: center; }
+    .memories-hero { flex-direction: column; }
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN PAGE ==================== -->
+<div id="login-page" class="page active">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="material-symbols-outlined icon">local_fire_department</span>
+      <h1>Shared Hearth</h1>
+      <p>A private space for you and your partner</p>
+    </div>
+    <div class="partners-row">
+      <div class="partner-icon"><span class="material-symbols-outlined" style="font-size:1.2rem">person</span></div>
+      <div class="arrow"><span class="material-symbols-outlined">favorite</span></div>
+      <div class="partner-icon"><span class="material-symbols-outlined" style="font-size:1.2rem">person</span></div>
+      <div>
+        <p><strong>One shared password</strong> for both partners</p>
+        <p>Each person uses their own name to log in</p>
+      </div>
+    </div>
+    <div id="login-error" class="login-error"></div>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="username-input" placeholder="e.g. Alex" autocomplete="off"/>
+    </div>
+    <div class="form-group">
+      <label>Partner's Name</label>
+      <input type="text" id="partnername-input" placeholder="e.g. Lina" autocomplete="off"/>
+    </div>
+    <div class="form-group">
+      <label>Shared Password</label>
+      <input type="password" id="password-input" placeholder="Your shared secret"/>
+    </div>
+    <button class="login-btn" onclick="handleLogin()">
+      <span class="material-symbols-outlined" style="vertical-align:middle;margin-right:6px">local_fire_department</span>
+      Enter Our Space
+    </button>
+    <p class="login-hint">💡 First time? Any password works — just remember it for next time!</p>
+  </div>
+</div>
+
+<!-- ==================== MAIN APP ==================== -->
+<div id="app">
+  <header class="app-header">
+    <div class="header-brand">
+      <span class="material-symbols-outlined icon">local_fire_department</span>
+      <h1>Shared Hearth</h1>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn active" onclick="showPage('home')" id="nav-home">
+        <span class="material-symbols-outlined" style="font-size:1.1rem">home</span>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('memories')" id="nav-memories">
+        <span class="material-symbols-outlined" style="font-size:1.1rem">auto_stories</span>
+        <span>Memories</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('vent')" id="nav-vent">
+        <span class="material-symbols-outlined" style="font-size:1.1rem">storm</span>
+        <span>Vent</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('dates')" id="nav-dates">
+        <span class="material-symbols-outlined" style="font-size:1.1rem">favorite</span>
+        <span>Date Night</span>
+      </button>
+    </nav>
+    <div class="header-right">
+      <div class="user-chip">
+        <span class="material-symbols-outlined" style="font-size:1rem">person</span>
+        <span id="header-username">You</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- ===== HOME PAGE ===== -->
+    <div id="home-page" class="page active">
+      <div class="home-hero">
+        <h2 id="home-greeting">Good Evening, Alex</h2>
+        <p id="home-sub">Your partner is thinking of you ❤️ Click the light to send a nudge!</p>
+      </div>
+      <div class="home-hub">
+        <div class="hub-cards">
+          <div class="hub-card" onclick="showPage('memories')">
+            <div class="card-icon" style="background:rgba(255,184,5,0.15)"><span class="material-symbols-outlined" style="color:var(--primary-orange)">auto_stories</span></div>
+            <h3>Shared Diary</h3>
+            <p>Record your precious memories together.</p>
+          </div>
+          <div class="hub-card" onclick="showPage('vent')">
+            <div class="card-icon" style="background:rgba(159,134,192,0.15)"><span class="material-symbols-outlined" style="color:#9F86C0">favorite</span></div>
+            <h3>Vent Space</h3>
+            <p>A safe place for your deep feelings.</p>
+          </div>
+        </div>
+        <div style="position:relative;display:flex;flex-direction:column;align-items:center">
+          <div class="central-lamp" onclick="sendNudge()">
+            <div class="lamp-inner">
+              <span class="material-symbols-outlined lamp-icon" style="animation:none;font-size:3.5rem;color:white">lightbulb</span>
+              <span style="animation:none;color:rgba(255,255,255,0.8)">Connected</span>
+            </div>
+          </div>
+          <div class="lamp-label">Click to send a "Thinking of You" nudge</div>
+        </div>
+        <div class="hub-cards">
+          <div class="hub-card" onclick="showPage('dates')">
+            <div class="card-icon" style="background:rgba(255,107,107,0.15)"><span class="material-symbols-outlined" style="color:var(--coral)">event</span></div>
+            <h3>Date Night</h3>
+            <p>Plan your next virtual adventure.</p>
+          </div>
+          <div class="hub-card" onclick="startHangout()">
+            <div class="card-icon" style="background:rgba(251,133,0,0.15)"><span class="material-symbols-outlined" style="color:var(--primary-orange)">videocam</span></div>
+            <h3>Hangout</h3>
+            <p>Hop into your private virtual lounge.</p>
+          </div>
+        </div>
+      </div>
+      <div class="mood-widget" style="margin:0 auto 3rem;max-width:700px;padding:1.5rem 2rem">
+        <div class="mood-label">
+          <span>Emotional Connection</span>
+          <h4>Synchronized Moods</h4>
+        </div>
+        <div class="mood-bar-wrap">
+          <div class="mood-bar"></div>
+          <div class="mood-ticks">
+            <span>Morning</span><span>Noon</span><span>Evening</span><span>Night</span>
+          </div>
+        </div>
+        <div class="mood-avatars">
+          <div class="mood-avatar" style="background:var(--primary)"><span class="material-symbols-outlined" style="font-size:1.1rem">sentiment_satisfied</span></div>
+          <div class="mood-avatar" style="background:var(--primary-orange)"><span class="material-symbols-outlined" style="font-size:1.1rem">sentiment_very_satisfied</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MEMORIES PAGE ===== -->
+    <div id="memories-page" class="page">
+      <div class="memories-hero">
+        <div>
+          <h2>Our Shared Diary</h2>
+          <p>Every laugh, every tear, and every "I miss you" captured in our digital haven.</p>
+        </div>
+        <div>
+          <div class="search-bar" style="margin-bottom:0.75rem">
+            <span class="material-symbols-outlined" style="color:#ccc;font-size:1.1rem">search</span>
+            <input type="text" placeholder="Search memories..." id="memory-search" oninput="filterMemories()"/>
+          </div>
+          <div class="memory-actions">
+            <button class="btn-primary" onclick="openAddMemory()">
+              <span class="material-symbols-outlined" style="font-size:1rem">add_photo_alternate</span> Add Memory
+            </button>
+            <button class="btn-secondary" onclick="openAddSticky()">
+              <span class="material-symbols-outlined" style="font-size:1rem">push_pin</span> Add Note
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="memories-grid" id="memories-grid">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+    <!-- ===== VENT PAGE ===== -->
+    <div id="vent-page" class="page">
+      <div class="page-hero">
+        <h2>Release Your Thoughts</h2>
+        <p>A shared sanctuary where feelings don't need to be perfect. Write, release, and let them float together.</p>
+      </div>
+      <div class="vent-input-card">
+        <div class="vent-input-inner">
+          <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:0.75rem">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(159,134,192,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <span class="material-symbols-outlined" style="color:var(--lavender)">edit_note</span>
+            </div>
+            <textarea id="vent-text" placeholder="Write what you're feeling..." class="vent-input-inner textarea" style="width:100%;background:transparent;border:none;outline:none;color:#e8e8f0;font-family:'Quicksand';font-size:1.1rem;resize:none;min-height:140px"></textarea>
+          </div>
+          <div class="vent-footer">
+            <div class="vent-mood-btns">
+              <button class="vent-mood-btn" onclick="setVentMood('sad')" title="Sad"><span class="material-symbols-outlined">sentiment_dissatisfied</span></button>
+              <button class="vent-mood-btn" onclick="setVentMood('anxious')" title="Anxious"><span class="material-symbols-outlined">cloud</span></button>
+              <button class="vent-mood-btn" onclick="setVentMood('private')" title="Private"><span class="material-symbols-outlined">lock</span></button>
+              <button class="vent-mood-btn" onclick="setVentMood('hopeful')" title="Hopeful"><span class="material-symbols-outlined">wb_sunny</span></button>
+            </div>
+            <button class="vent-submit" onclick="submitVent()">Release to the Void</button>
+          </div>
+        </div>
+        <p style="text-align:center;color:rgba(159,134,192,0.4);font-size:0.75rem;margin-top:0.75rem;font-style:italic">Visible only to you and your partner</p>
+      </div>
+      <div class="vents-section">
+        <h3>Shared Reflections</h3>
+        <div class="vents-grid" id="vents-grid"></div>
+      </div>
+      <div class="partner-presence" id="partner-presence-vent">
+        <div class="presence-card">
+          <div class="presence-avatar">
+            <span class="material-symbols-outlined" style="font-size:2rem">person</span>
+            <div class="presence-dot"></div>
+          </div>
+          <div class="presence-info">
+            <h4 id="partner-presence-name">Partner</h4>
+            <p>"I'm here for you, even when the words are hard to find."</p>
+          </div>
+          <div class="presence-btns">
+            <button class="btn-lavender" onclick="sendNudge()">Poke Gently</button>
+            <button class="btn-primary" onclick="startHangout()">Start Presence Call</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DATES PAGE ===== -->
+    <div id="dates-page" class="page">
+      <div class="page-hero">
+        <h2>Date Idea Generator</h2>
+        <p>Distance is just a number. Spark some magic tonight with a surprise digital date tailored for the two of you.</p>
+      </div>
+      <div class="date-categories">
+        <button class="cat-btn active" data-cat="all" onclick="setDateCat(this,'all')"><span class="material-symbols-outlined" style="font-size:1rem">apps</span> All</button>
+        <button class="cat-btn" data-cat="chill" onclick="setDateCat(this,'chill')"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--coral)">coffee</span> Chill</button>
+        <button class="cat-btn" data-cat="active" onclick="setDateCat(this,'active')"><span class="material-symbols-outlined" style="font-size:1rem">bolt</span> Active</button>
+        <button class="cat-btn" data-cat="latenight" onclick="setDateCat(this,'latenight')"><span class="material-symbols-outlined" style="font-size:1rem;color:#6366f1">dark_mode</span> Late Night</button>
+        <button class="cat-btn" data-cat="creative" onclick="setDateCat(this,'creative')"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--primary)">palette</span> Creative</button>
+      </div>
+      <div class="date-generator">
+        <div class="gen-btn-wrap">
+          <div class="gen-glow"></div>
+          <button class="gen-btn" onclick="generateDate()">
+            <span class="material-symbols-outlined gen-icon">auto_awesome</span>
+            <span class="gen-label">Surprise Us!</span>
+          </button>
+        </div>
+      </div>
+      <div class="date-result" id="date-result" style="display:none">
+        <div class="date-result-card">
+          <div style="flex:1">
+            <div class="date-tag" id="dr-tag">Creative</div>
+            <h3 id="dr-title">Virtual Museum & Sketching</h3>
+            <p id="dr-desc">Explore the halls of the Louvre together over a video call. Choose a masterpiece and try to sketch it on your own canvas while sharing deep conversations.</p>
+            <div class="date-action-btns">
+              <button class="btn-lock" onclick="lockDate()">
+                <span class="material-symbols-outlined" style="font-size:1rem">push_pin</span> Lock It In
+              </button>
+              <button class="btn-spin" onclick="generateDate()">
+                <span class="material-symbols-outlined" style="font-size:1rem">refresh</span> Spin Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="planned-dates">
+        <h3><span class="material-symbols-outlined">event</span> Planned Date Nights</h3>
+        <div id="planned-dates-list"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== ADD MEMORY MODAL ===== -->
+<div id="memory-modal" class="modal-overlay hidden" onclick="closeModalOutside(event,'memory-modal')">
+  <div class="modal">
+    <h3>✨ Add a Memory</h3>
+    <input type="text" id="mem-caption" placeholder="Caption for this memory..."/>
+    <textarea id="mem-note" placeholder="Any extra details or feelings? (optional)" style="min-height:80px"></textarea>
+    <input type="date" id="mem-date"/>
+    <select id="mem-type">
+      <option value="polaroid">📷 Photo Memory (Polaroid)</option>
+      <option value="sticky">📝 Sticky Note</option>
+      <option value="audio">🎙️ Voice Note</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('memory-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveMemory()">Save Memory</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NUDGE TOAST (hidden by default) ===== -->
+<div class="nudge-toast hidden" id="nudge-toast" onclick="this.classList.add('hidden')">
+  <div class="toast-icon"><span class="material-symbols-outlined">favorite</span></div>
+  <div class="toast-text">
+    <p id="nudge-text">Sending a nudge... ❤️</p>
+    <small id="nudge-sub">Thinking of you</small>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA STORE ===================== */
+const STORAGE_KEY = 'shared_hearth_v1';
+
+function getStore() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultStore(); }
+  catch { return defaultStore(); }
+}
+function saveStore(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function defaultStore() {
+  return {
+    password: null,
+    memories: [
+      { id: 1, type: 'polaroid', caption: '5:00 AM Coffee together ❤️', note: '', date: '2023-10-12', author: 'Both', likes: 3, rot: -2 },
+      { id: 2, type: 'sticky', caption: '"Do you remember that rainy Tuesday when we just stayed on Discord for 10 hours doing absolutely nothing but breathing together?"', note: '', date: '2023-11-01', author: 'Sarah', likes: 5, rot: 3 },
+      { id: 3, type: 'audio', caption: 'Voice Note — goodnight message 🌙', note: '"I just wanted to say goodnight and that I\'m counting down the days..."', date: '2024-01-15', author: 'Alex', likes: 15, rot: 1 },
+    ],
+    vents: [
+      { id: 1, author: 'Alex', text: 'Missing you extra hard today. The apartment feels too quiet.', mood: 'sad', date: '2024-01-20', response: '' },
+      { id: 2, author: 'Lina', text: 'Had a hard day at work but thinking of our next visit keeps me going 💪', mood: 'hopeful', date: '2024-01-21', response: '' },
+    ],
+    dates: [
+      { id: 1, title: 'Virtual Movie Marathon', desc: 'Pick a trilogy and watch it together on sync.', category: 'chill', date: '2024-02-10', locked: true },
+      { id: 2, title: 'Online Cooking Class', desc: 'Cook the same recipe from your own kitchens on video.', category: 'active', date: '2024-02-14', locked: true },
+    ],
+  };
+}
+
+/* ===================== AUTH ===================== */
+let currentUser = null;
+let currentPartner = null;
+
+function handleLogin() {
+  const username = document.getElementById('username-input').value.trim();
+  const partner = document.getElementById('partnername-input').value.trim();
+  const password = document.getElementById('password-input').value;
+  const err = document.getElementById('login-error');
+
+  if (!username || !partner || !password) {
+    err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return;
+  }
+  if (username.toLowerCase() === partner.toLowerCase()) {
+    err.textContent = 'Your name and partner\'s name should be different!'; err.style.display = 'block'; return;
+  }
+
+  const store = getStore();
+  if (!store.password) {
+    // First login — set password
+    store.password = password;
+    saveStore(store);
+  } else if (store.password !== password) {
+    err.textContent = 'Wrong password. Try again!'; err.style.display = 'block'; return;
+  }
+
+  err.style.display = 'none';
+  currentUser = username;
+  currentPartner = partner;
+  sessionStorage.setItem('sh_user', username);
+  sessionStorage.setItem('sh_partner', partner);
+  initApp();
+}
+
+function checkSession() {
+  const u = sessionStorage.getItem('sh_user') || 'You';
+  const p = sessionStorage.getItem('sh_partner') || 'Your Partner';
+  currentUser = u;
+  currentPartner = p;
+  return true;
+}
+
+/* ===================== APP INIT ===================== */
+function initApp() {
+  document.getElementById('login-page').classList.remove('active');
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').classList.add('active');
+  updateHeaderUser();
+  updateHomeGreeting();
+  renderMemories();
+  renderVents();
+  renderPlannedDates();
+  document.getElementById('partner-presence-name').textContent = currentPartner + ' is listening';
+}
+
+function updateHeaderUser() {
+  document.getElementById('header-username').textContent = currentUser;
+}
+
+function updateHomeGreeting() {
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening';
+  document.getElementById('home-greeting').textContent = `${greet}, ${currentUser}`;
+  document.getElementById('home-sub').textContent = `${currentPartner} is thinking of you ❤️ Click the light to send a nudge!`;
+}
+
+/* ===================== NAVIGATION ===================== */
+function showPage(page) {
+  ['home-page','memories-page','vent-page','dates-page'].forEach(id => {
+    document.getElementById(id).classList.toggle('active', id === page+'-page');
+  });
+  ['home','memories','vent','dates'].forEach(id => {
+    document.getElementById('nav-'+id).classList.toggle('active', id === page);
+  });
+  if (page === 'memories') renderMemories();
+  if (page === 'vent') renderVents();
+  if (page === 'dates') renderPlannedDates();
+}
+
+/* ===================== NUDGE ===================== */
+function sendNudge() {
+  const toast = document.getElementById('nudge-toast');
+  document.getElementById('nudge-text').textContent = `Nudge sent to ${currentPartner}! 💛`;
+  document.getElementById('nudge-sub').textContent = 'Just now — thinking of you';
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 4000);
+}
+
+function startHangout() {
+  const toast = document.getElementById('nudge-toast');
+  document.getElementById('nudge-text').textContent = `Inviting ${currentPartner} to hang out...`;
+  document.getElementById('nudge-sub').textContent = 'Virtual lounge opening ✨';
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 4000);
+}
+
+/* ===================== MEMORIES ===================== */
+let ventMood = 'sad';
+function setVentMood(m) { ventMood = m; }
+
+function openAddMemory() { openModal('memory-modal'); document.getElementById('mem-date').value = today(); }
+function openAddSticky() { openModal('memory-modal'); document.getElementById('mem-type').value = 'sticky'; document.getElementById('mem-date').value = today(); }
+
+function saveMemory() {
+  const caption = document.getElementById('mem-caption').value.trim();
+  if (!caption) { alert('Please add a caption!'); return; }
+  const store = getStore();
+  const mem = {
+    id: Date.now(), type: document.getElementById('mem-type').value,
+    caption, note: document.getElementById('mem-note').value.trim(),
+    date: document.getElementById('mem-date').value || today(),
+    author: currentUser, likes: 0, rot: (Math.random() * 6 - 3).toFixed(1)
+  };
+  store.memories.unshift(mem);
+  saveStore(store);
+  closeModal('memory-modal');
+  document.getElementById('mem-caption').value = '';
+  document.getElementById('mem-note').value = '';
+  renderMemories();
+}
+
+function likeMemory(id) {
+  const store = getStore();
+  const m = store.memories.find(x => x.id === id);
+  if (m) { m.likes++; saveStore(store); renderMemories(); }
+}
+
+function deleteMemory(id) {
+  if (!confirm('Delete this memory?')) return;
+  const store = getStore();
+  store.memories = store.memories.filter(x => x.id !== id);
+  saveStore(store);
+  renderMemories();
+}
+
+function filterMemories() {
+  renderMemories(document.getElementById('memory-search').value.toLowerCase());
+}
+
+function renderMemories(filter = '') {
+  const store = getStore();
+  const grid = document.getElementById('memories-grid');
+  let mems = store.memories;
+  if (filter) mems = mems.filter(m => m.caption.toLowerCase().includes(filter) || (m.note||'').toLowerCase().includes(filter));
+  
+  if (mems.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#ccc"><span class="material-symbols-outlined" style="font-size:3rem;display:block;margin-bottom:1rem">photo_library</span><p>No memories yet. Add your first one!</p></div>`;
+    return;
+  }
+  
+  grid.innerHTML = mems.map(m => renderMemoryCard(m)).join('');
+}
+
+function renderMemoryCard(m) {
+  const dateStr = m.date ? new Date(m.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+  const rot = m.rot || 0;
+  
+  if (m.type === 'sticky') {
+    return `<div class="sticky-memory" style="--rot:${rot}deg" onclick="">
+      <div class="stick-text">${m.caption}</div>
+      ${m.note ? `<p style="margin-top:0.5rem;font-size:0.85rem;opacity:0.7">${m.note}</p>` : ''}
+      <div style="margin-top:1rem;display:flex;justify-content:space-between;align-items:center">
+        <span class="stick-author">— ${m.author}</span>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <button class="mem-likes" style="background:none;border:none;cursor:pointer;font-weight:700;font-size:0.85rem;color:#a07800;display:flex;align-items:center;gap:0.25rem" onclick="likeMemory(${m.id})">
+            <span class="material-symbols-outlined" style="font-size:1rem">favorite</span>${m.likes}
+          </button>
+          <button onclick="deleteMemory(${m.id})" style="background:none;border:none;cursor:pointer;color:#ccc;font-size:0.75rem" title="Delete">
+            <span class="material-symbols-outlined" style="font-size:0.9rem">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }
+  
+  if (m.type === 'audio') {
+    return `<div class="memory-card" style="--rot:${rot}deg">
+      <div style="background:rgba(255,184,5,0.08);border-radius:0.75rem;padding:1.25rem;margin-bottom:0.75rem">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,184,5,0.2);display:flex;align-items:center;justify-content:center">
+            <span class="material-symbols-outlined" style="color:var(--primary)">mic</span>
+          </div>
+          <div>
+            <p style="font-weight:700;font-size:0.9rem">Voice Note from ${m.author}</p>
+            <p style="font-size:0.75rem;color:#aaa">${dateStr}</p>
+          </div>
+        </div>
+        <div style="background:#f5f5f5;border-radius:0.5rem;height:40px;display:flex;align-items:center;padding:0 0.75rem;gap:0.5rem">
+          <span class="material-symbols-outlined" style="color:#ccc;font-size:1.2rem">play_arrow</span>
+          <div style="flex:1;height:20px;display:flex;align-items:flex-end;gap:2px">
+            ${Array(16).fill(0).map(()=>`<div style="width:3px;background:var(--primary);height:${4+Math.random()*14}px;border-radius:1px"></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      ${m.note ? `<p style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;color:#555;margin-bottom:0.5rem">${m.note}</p>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button class="memory-card mem-likes" style="background:none;border:none;cursor:pointer;font-weight:700;font-size:0.85rem;color:var(--primary-orange);display:flex;align-items:center;gap:0.25rem" onclick="likeMemory(${m.id})">
+          <span class="material-symbols-outlined" style="font-size:1rem">favorite</span>${m.likes}
+        </button>
+        <button onclick="deleteMemory(${m.id})" style="background:none;border:none;cursor:pointer;color:#ccc" title="Delete">
+          <span class="material-symbols-outlined" style="font-size:0.9rem">delete</span>
+        </button>
+      </div>
+    </div>`;
+  }
+  
+  // Default polaroid
+  return `<div class="memory-card" style="--rot:${rot}deg">
+    <div class="memory-img" style="width:100%;aspect-ratio:1;background:linear-gradient(135deg,#fff3e0,#ffe0b2);display:flex;align-items:center;justify-content:center;font-size:3rem;margin-bottom:0.75rem">📷</div>
+    <div class="mem-caption">${m.caption}</div>
+    ${m.note ? `<p style="font-size:0.82rem;color:#777;margin-top:0.35rem;line-height:1.5">${m.note}</p>` : ''}
+    <div class="mem-date"><span class="material-symbols-outlined" style="font-size:0.85rem">calendar_today</span>${dateStr}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem">
+      <button style="background:none;border:none;cursor:pointer;font-weight:700;font-size:0.85rem;color:var(--primary-orange);display:flex;align-items:center;gap:0.25rem" onclick="likeMemory(${m.id})">
+        <span class="material-symbols-outlined" style="font-size:1rem">favorite</span>${m.likes}
+      </button>
+      <button onclick="deleteMemory(${m.id})" style="background:none;border:none;cursor:pointer;color:#ccc" title="Delete">
+        <span class="material-symbols-outlined" style="font-size:0.9rem">delete</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ===================== VENTS ===================== */
+function submitVent() {
+  const text = document.getElementById('vent-text').value.trim();
+  if (!text) return;
+  const store = getStore();
+  store.vents.unshift({ id: Date.now(), author: currentUser, text, mood: ventMood, date: new Date().toISOString().split('T')[0], response: '' });
+  saveStore(store);
+  document.getElementById('vent-text').value = '';
+  renderVents();
+  const toast = document.getElementById('nudge-toast');
+  document.getElementById('nudge-text').textContent = 'Released to the void 🌌';
+  document.getElementById('nudge-sub').textContent = `${currentPartner} can see this`;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 3500);
+}
+
+function deleteVent(id) {
+  if (!confirm('Remove this vent?')) return;
+  const store = getStore();
+  store.vents = store.vents.filter(x => x.id !== id);
+  saveStore(store);
+  renderVents();
+}
+
+const moodIcons = { sad:'sentiment_dissatisfied', anxious:'cloud', private:'lock', hopeful:'wb_sunny' };
+const moodColors = { sad:'#6366f1', anxious:'#9F86C0', private:'#888', hopeful:'#ffb805' };
+
+function renderVents() {
+  const store = getStore();
+  const grid = document.getElementById('vents-grid');
+  if (!store.vents.length) {
+    grid.innerHTML = '<p style="color:rgba(159,134,192,0.5);font-style:italic;text-align:center;grid-column:1/-1;padding:2rem">No vents yet. Write what you\'re feeling.</p>';
+    return;
+  }
+  grid.innerHTML = store.vents.map(v => {
+    const dateStr = v.date ? new Date(v.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    const icon = moodIcons[v.mood] || 'sentiment_dissatisfied';
+    const color = moodColors[v.mood] || '#9F86C0';
+    return `<div class="vent-card">
+      <div class="vc-author">
+        <span class="material-symbols-outlined" style="font-size:0.9rem;color:${color}">${icon}</span>
+        ${v.author}
+      </div>
+      <p class="vc-text">${v.text}</p>
+      <div class="vc-meta">
+        <span>${dateStr}</span>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <button class="vc-respond-btn" onclick="respondToVent(${v.id})">Respond 💬</button>
+          ${v.author === currentUser ? `<button onclick="deleteVent(${v.id})" style="background:none;border:none;cursor:pointer;color:rgba(159,134,192,0.3)" title="Delete"><span class="material-symbols-outlined" style="font-size:0.9rem">delete</span></button>` : ''}
+        </div>
+      </div>
+      ${v.response ? `<div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(159,134,192,0.15);font-size:0.85rem;color:rgba(159,134,192,0.7);font-style:italic">"${v.response}"</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function respondToVent(id) {
+  const resp = prompt('Send a response (visible to both):');
+  if (!resp) return;
+  const store = getStore();
+  const v = store.vents.find(x => x.id === id);
+  if (v) { v.response = resp; saveStore(store); renderVents(); }
+}
+
+/* ===================== DATE NIGHT ===================== */
+const dateIdeas = {
+  chill: [
+    { title:'Virtual Movie Night', desc:'Pick a comfort film, press play at the same time, and video call throughout. Make the same popcorn recipe together.', tag:'Chill 🍿' },
+    { title:'Online Board Game Night', desc:'Pick a browser-based board game like Catan Universe, Skribbl.io, or Codenames. Winner gets to choose next week\'s date!', tag:'Chill 🎲' },
+    { title:'Shared Spotify Session', desc:'Take turns being DJ on a shared playlist. For every song, tell each other why you picked it.', tag:'Chill 🎵' },
+  ],
+  active: [
+    { title:'Sync Workout Challenge', desc:'Follow the same YouTube workout video simultaneously. Send each other sweaty selfies after!', tag:'Active 💪' },
+    { title:'Virtual 5K', desc:'Run your own route at the same time. Share your GPS maps and compare, then celebrate with a video call.', tag:'Active 🏃' },
+    { title:'Dance Party for Two', desc:'Pick a theme (80s, K-pop, Latin). Take turns teaching each other a move on video call.', tag:'Active 💃' },
+  ],
+  latenight: [
+    { title:'Stargazing Date', desc:'Download a stargazing app, point it at the same constellation, and share what you see. Make up your own constellation together.', tag:'Late Night 🌟' },
+    { title:'Truth or Dare Over Video', desc:'The classic game, LDR edition. Create your own category of deep relationship truths.', tag:'Late Night 🌙' },
+    { title:'Ghost Stories Night', desc:'Take turns reading each other a scary story. Keep the lights low and have blankets ready.', tag:'Late Night 👻' },
+  ],
+  creative: [
+    { title:'Virtual Museum & Sketching', desc:'Explore the Louvre together online. Choose a masterpiece and sketch your interpretation while chatting.', tag:'Creative 🎨' },
+    { title:'Write Each Other a Letter', desc:'Old school! Write a physical letter simultaneously on video call, then mail them. No peeking until they arrive!', tag:'Creative ✉️' },
+    { title:'Cook the Same Recipe', desc:'Pick a challenging recipe, order the same ingredients, and cook together on video call from your own kitchens.', tag:'Creative 👩‍🍳' },
+  ],
+};
+dateIdeas.all = [...dateIdeas.chill, ...dateIdeas.active, ...dateIdeas.latenight, ...dateIdeas.creative];
+
+let currentDateCat = 'all';
+let currentDateIdea = null;
+
+function setDateCat(btn, cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentDateCat = cat;
+  document.getElementById('date-result').style.display = 'none';
+}
+
+function generateDate() {
+  const pool = dateIdeas[currentDateCat] || dateIdeas.all;
+  currentDateIdea = pool[Math.floor(Math.random() * pool.length)];
+  document.getElementById('dr-title').textContent = currentDateIdea.title;
+  document.getElementById('dr-desc').textContent = currentDateIdea.desc;
+  document.getElementById('dr-tag').textContent = currentDateIdea.tag;
+  const el = document.getElementById('date-result');
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function lockDate() {
+  if (!currentDateIdea) return;
+  const store = getStore();
+  store.dates.unshift({ id: Date.now(), title: currentDateIdea.title, desc: currentDateIdea.desc, category: currentDateCat, date: today(), locked: true });
+  saveStore(store);
+  renderPlannedDates();
+  const toast = document.getElementById('nudge-toast');
+  document.getElementById('nudge-text').textContent = `📅 "${currentDateIdea.title}" locked in!`;
+  document.getElementById('nudge-sub').textContent = `${currentPartner} has been notified`;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 3500);
+}
+
+function deletePlannedDate(id) {
+  if (!confirm('Remove this planned date?')) return;
+  const store = getStore();
+  store.dates = store.dates.filter(x => x.id !== id);
+  saveStore(store);
+  renderPlannedDates();
+}
+
+function renderPlannedDates() {
+  const store = getStore();
+  const list = document.getElementById('planned-dates-list');
+  if (!store.dates.length) {
+    list.innerHTML = '<p style="color:#ccc;text-align:center;padding:2rem;font-style:italic">No planned dates yet! Generate one above ↑</p>';
+    return;
+  }
+  list.innerHTML = store.dates.map(d => {
+    const dateStr = d.date ? new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+    const icons = { chill:'coffee', active:'bolt', latenight:'dark_mode', creative:'palette', all:'auto_awesome' };
+    return `<div class="planned-date-item">
+      <div class="pdi-icon"><span class="material-symbols-outlined">${icons[d.category]||'favorite'}</span></div>
+      <div class="pdi-info">
+        <h4>${d.title}</h4>
+        <p>${d.desc.substring(0,70)}...</p>
+        <p style="font-size:0.75rem;color:#bbb;margin-top:0.2rem">${dateStr}</p>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem">
+        <span class="pdi-badge">Planned 📌</span>
+        <button class="pdi-delete" onclick="deletePlannedDate(${d.id})" title="Remove">
+          <span class="material-symbols-outlined" style="font-size:0.9rem">delete</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ===================== MODAL HELPERS ===================== */
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function closeModalOutside(e, id) { if (e.target.id === id) closeModal(id); }
+
+function today() { return new Date().toISOString().split('T')[0]; }
+
+/* ===================== INIT ===================== */
+window.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); });
+document.addEventListener('DOMContentLoaded', () => { 
+  checkSession();
+  initApp();
+});
+</script>
+</body>
+</html>
